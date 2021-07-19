@@ -44,6 +44,19 @@ const styles = () => { // Создаём Gulp task (одна задача), на
         .pipe(browserSync.stream())
 }
 
+const stylesDev = () => { // Стили для разработки
+    return src('src/styles/**/*.css')
+        .pipe(concat('main.css'))
+        .pipe(autoprefixes({
+            cascade: false
+        }))
+        .pipe(cleanCSS({
+            level: 2
+        }))
+        .pipe(dest('dist'))
+        .pipe(browserSync.stream())
+}
+
 const htmlMinify = () => { // Создаём другой Gulp task (для минификации страниц)
     return src('src/**/*.html') // Получаем файлы, с которыми будем работать,
         .pipe(htmlMin({
@@ -85,6 +98,19 @@ const scripts = () => {
       .pipe(browserSync.stream())
 }
 
+const scriptsDev = () => { // Scripts для разработки
+    return src([
+        'src/js/components/**/*.js',
+        'src/js/main.js'
+      ])
+      .pipe(babel({
+          presets: ['@babel/env']
+      }))
+      .pipe(concat('app.js'))
+      .pipe(dest('dist'))
+      .pipe(browserSync.stream())
+}
+
 const watchFiles = () => {
     browserSync.init({
         server: {
@@ -118,3 +144,5 @@ exports.htmlMinify = htmlMinify
 exports.scripts = scripts
 exports.default = series(clean, resources, htmlMinify, scripts, styles, images, svgSprites, watchFiles) 
 // Для выполнения серии задач командой gulp
+exports.development = series(clean, htmlMinify, scriptsDev, stylesDev, images, svgSprites, watchFiles);
+// Версия запуска для разработки
